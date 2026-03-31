@@ -81,7 +81,7 @@ After:
 
 ## 👨‍💻 Author
 
-Your Name
+Satnam singh
 
 ---
 
