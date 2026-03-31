@@ -42,7 +42,7 @@ A Python automation script that organizes files into folders based on their file
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/your-username/file-organizer.git
+git clone https://github.com/Satnamsingh144/file-organizer.git
 ```
 
 2. Navigate to the project folder:
