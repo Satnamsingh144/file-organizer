@@ -12,42 +12,51 @@ def folder_scan(source_folder, destination_folder,custom_folders):
         "code": 0,
         "others": 0
     }
-    
+    for keys in custom_folders.keys():
+             counts[keys]=0
     for file in os.listdir(source_folder):
         old_path = os.path.join(source_folder, file)
+
 
         if not os.path.isfile(old_path):
             continue
 
         folder_name = "others"
         filetype = "others"
+        matched=False
+        
         for custom_folder , file_ext in custom_folders.items():
-           file_ext_split=file_ext.split(",")
-           if file.lower().endswith(file_ext_split):
-             folder_name=custom_folder
-        if file.lower().endswith((".mp4", ".mkv", ".avi", ".mov", ".flv", ".wmv")):
-            folder_name = "videos"
-            filetype = "videos"
+            file_ext_split=tuple(ext.strip() for ext in file_ext.split(","))
+            if file.lower().endswith(file_ext_split):
+               matched=True
+               folder_name=custom_folder
+               filetype=custom_folder
+               break
+        if not matched:
 
-        elif file.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp")):
-            folder_name = "images"
-            filetype = "images"
+            if file.lower().endswith((".mp4", ".mkv", ".avi", ".mov", ".flv", ".wmv")):
+                    folder_name = "videos"
+                    filetype = "videos"
 
-        elif file.lower().endswith((".pdf", ".doc", ".docx", ".txt", ".ppt", ".pptx", ".xls", ".xlsx")):
-            folder_name = "documents"
-            filetype = "documents"
+            elif file.lower().endswith((".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp")):
+                    folder_name = "images"
+                    filetype = "images"
 
-        elif file.lower().endswith((".mp3", ".wav", ".aac", ".flac", ".ogg")):
-            folder_name = "audio"
-            filetype = "audio"
+            elif file.lower().endswith((".pdf", ".doc", ".docx", ".txt", ".ppt", ".pptx", ".xls", ".xlsx")):
+                    folder_name = "documents"
+                    filetype = "documents"
 
-        elif file.lower().endswith((".zip", ".rar", ".7z", ".tar", ".gz")):
-            folder_name = "compressed"
-            filetype = "compressed"
+            elif file.lower().endswith((".mp3", ".wav", ".aac", ".flac", ".ogg")):
+                    folder_name = "audio"
+                    filetype = "audio"
 
-        elif file.lower().endswith((".py", ".java", ".cpp", ".c", ".js", ".html", ".css", ".json")):
-            folder_name = "code"
-            filetype = "code"
+            elif file.lower().endswith((".zip", ".rar", ".7z", ".tar", ".gz")):
+                    folder_name = "compressed"
+                    filetype = "compressed"
+
+            elif file.lower().endswith((".py", ".java", ".cpp", ".c", ".js", ".html", ".css", ".json")):
+                    folder_name = "code"
+                    filetype = "code"
 
         folder_path = os.path.join(destination_folder, folder_name)
         os.makedirs(folder_path, exist_ok=True)
@@ -56,31 +65,27 @@ def folder_scan(source_folder, destination_folder,custom_folders):
 
         name, ext = os.path.splitext(file)
         i = 1
-
         while os.path.exists(new_path):
-            new_name = f"{name}({i}){ext}"
-            new_path = os.path.join(folder_path, new_name)
-            i += 1
+                new_name = f"{name}({i}){ext}"
+                new_path = os.path.join(folder_path, new_name)
+                i += 1
 
         try:
-            shutil.move(old_path, new_path)
-            counts[filetype] += 1
+                shutil.move(old_path, new_path)
+                counts[filetype] += 1
         except Exception as e:
             print(f"Failed to move: {file} | Error: {e}")
-
     print("\n===== File Summary =====")
-    print(f"Images     : {counts['images']}")
-    print(f"Videos     : {counts['videos']}")
-    print(f"Documents  : {counts['documents']}")
-    print(f"Audio      : {counts['audio']}")
-    print(f"Compressed : {counts['compressed']}")
-    print(f"Code       : {counts['code']}")
-    print(f"Others     : {counts['others']}")
+    for key , value in counts.items():  
+      print(f"{key.capitalize():12} : {value}")
     print("------------------------")
-    print(f"Total files: {sum(counts.values())}")
+    print(f"Total files: {sum(counts.values())}")   
+    print("✔ Files organized successfully")
+    print("Thanks for using File Organizer")
+   
 
 
-def make_subfolders(destination_folder,custom_folder):
+def make_subfolders(destination_folder,custom_folders=None):
     folders = [
         "videos",
         "images",
@@ -90,7 +95,8 @@ def make_subfolders(destination_folder,custom_folder):
         "code",
         "others"
     ]
-    folders.append(custom_folder)
+    for custom_folder , file_ext in custom_folders.items():
+      folders.append(custom_folder)
     for folder in folders:
         os.makedirs(os.path.join(destination_folder, folder), exist_ok=True)
 
@@ -166,7 +172,7 @@ def main():
                 else:
                     print("Please enter only yes, no, y, or n.")
                            
-            make_subfolders(destination_folder,custom_folder)
+            make_subfolders(destination_folder,custom_folders)
             folder_scan(source_folder, destination_folder,custom_folders)
 
         else:
