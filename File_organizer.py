@@ -2,7 +2,7 @@ import os
 import shutil
 
 
-def folder_scan(source_folder, destination_folder):
+def folder_scan(source_folder, destination_folder,custom_folders):
     counts = {
         "videos": 0,
         "images": 0,
@@ -12,7 +12,7 @@ def folder_scan(source_folder, destination_folder):
         "code": 0,
         "others": 0
     }
-
+    
     for file in os.listdir(source_folder):
         old_path = os.path.join(source_folder, file)
 
@@ -21,7 +21,10 @@ def folder_scan(source_folder, destination_folder):
 
         folder_name = "others"
         filetype = "others"
-
+        for custom_folder , file_ext in custom_folders.items():
+           file_ext_split=file_ext.split(",")
+           if file.lower().endswith(file_ext_split):
+             folder_name=custom_folder
         if file.lower().endswith((".mp4", ".mkv", ".avi", ".mov", ".flv", ".wmv")):
             folder_name = "videos"
             filetype = "videos"
@@ -77,7 +80,7 @@ def folder_scan(source_folder, destination_folder):
     print(f"Total files: {sum(counts.values())}")
 
 
-def make_subfolders(destination_folder):
+def make_subfolders(destination_folder,custom_folder):
     folders = [
         "videos",
         "images",
@@ -87,7 +90,7 @@ def make_subfolders(destination_folder):
         "code",
         "others"
     ]
-
+    folders.append(custom_folder)
     for folder in folders:
         os.makedirs(os.path.join(destination_folder, folder), exist_ok=True)
 
@@ -142,9 +145,29 @@ def main():
 
                 else:
                     print("Please enter only yes, no, y, or n.")
-
-            make_subfolders(destination_folder)
-            folder_scan(source_folder, destination_folder)
+            while True:
+                custom_folder_check= input(
+                    "Do you want to add custom subfolder? for specific file types (yes/no): "
+                ).lower()
+                custom_folders={}
+                if custom_folder_check in ["yes", "y"]:
+                    custom_folder = input("Enter subfolder  name: ")
+                    file_ext=input("Enter the file extension:")
+                    custom_folders[custom_folder] = file_ext
+                    check=input("Enter yes to add one more subfolder or no to not add:")
+                    if check in ["no", "n"]:
+                        break
+                    elif check in  ["yes", "y"]:
+                        continue
+                    else:
+                      print("Please enter only yes, no, y, or n.")
+                elif custom_folder_check in ["no", "n"]:
+                    break
+                else:
+                    print("Please enter only yes, no, y, or n.")
+                           
+            make_subfolders(destination_folder,custom_folder)
+            folder_scan(source_folder, destination_folder,custom_folders)
 
         else:
             print("Invalid choice! Please enter 1 or 2.")
